@@ -3,6 +3,7 @@ const mysql = require('mysql2');
 const express = require('express')
 const app = express()
 const cors = require('cors');
+const { json } = require('react-router-dom');
 
 
 
@@ -15,7 +16,7 @@ const dbConfig = {
 
 const connection = mysql.createConnection(dbConfig);
 
-connection.connect(function(err) {
+connection.connect(function (err) {
   if (err) {
     console.error('Erreur lors de la connexion à la base de données :', err);
   } else {
@@ -32,46 +33,60 @@ app.use(express.json());
 
 //register of customers
 app.post('/:username/customers', (req, res) => {
-    const user = req.body; 
-    console.log("user register");
-    console.log(user);
-  
-    connection.query('SELECT * FROM Customers WHERE Username = ?', [user.username], (err, rows) => {
-      if (err) {
-        console.error('Error while executing the query: ', err);
-        res.status(500).send('Error checking username');
+  const user = req.body;
+  console.log("user register");
+  console.log(user.username);
+  console.log(user.username);
+
+  connection.query('SELECT * FROM Usernames_and_passwords WHERE Username = ?', [user.username], (err, rows) => {
+    if (err) {
+      console.error('Error while executing the query: cc ', err);
+      res.status(500).send('Error checking username');
+    } else {
+      if (rows.length > 0) {
+        console.log("vghjk");
+        res.status(400).send('Username is already in use');
       } else {
-        if (rows.length > 0) {
-          res.status(400).send('Username is already in use');
-        } else {
-          // Insérer les informations dans la table users_password
-          const userData = {
-            Username: user.username,
-            Password: user.password,
-            Allowing_Access: 0
-          };
-  
-          connection.query('INSERT INTO Usernames_and_passwords SET ?', [userData], (err, result) => {
-            if (err) {
-              console.error('Error while executing the query: ', err);
-              res.status(500).send('Error checking username');
-            } else {
-              user.Exercising_a_birthday_discount = 0;
-              connection.query('INSERT INTO Customers SET ?', [user], (err, result) => {
-                if (err) {
-                  console.error('Error while executing the query: ', err);
-                  res.status(500).send('Error checking username');
-                } else {
-                  const userId = result.insertId;
-                  res.status(201).send(`User added with ID : ${userId}`);
-                }
-              });
-            }
-          });
-        }
+        // Insérer les informations dans la table users_password
+        const userData = {
+          Username: user.username,
+          Password: user.password,
+          Allowing_Access: 0
+        };
+
+        console.log("aa");
+        connection.query('INSERT INTO Usernames_and_passwords SET ?', [userData], (err, result) => {
+          if (err) {
+            console.error('Error while executing the query: line 56 ', err);
+            res.status(500).send('Error checking username');
+          } else {
+
+            const newUser = {
+              Username: user.username,
+              Password: user.password,
+              Email: user.email,
+              First_Name: user.firstName,
+              Last_Name: user.lastName,
+              Address: user.address,
+              Phone_Number: user.phone,
+              Birthday_date: user.birthDate,
+              Exercising_a_birthday_discount: 0
+            };
+            connection.query('INSERT INTO Customers SET ?', [newUser], (err, result) => {
+              if (err) {
+                console.error('Error while executing the query: hhhh', err);
+                res.status(500).send('Error checking username');
+              } else {
+                const userId = result.insertId;
+                res.status(201).send(`User added with ID : ${userId}`);
+              }
+            });
+          }
+        });
       }
-    });
+    }
   });
+});
 
 //show posts
 app.get('/products/:type', (req, res) => {
@@ -95,7 +110,7 @@ app.get('/products/:type', (req, res) => {
 // app.put('/users/:id', (req, res) => {
 //   const userId = req.params.id;
 //   const updatedUser = req.body; // Récupérer les données mises à jour de l'utilisateur depuis la requête
-  
+
 //   connection.query('UPDATE users SET ? WHERE id = ?', [updatedUser, userId], (err, result) => {
 //     if (err) {
 //       console.error('Error while executing the query: ', err);
@@ -174,79 +189,82 @@ app.get('/products/:type', (req, res) => {
 
 //have the users and passwords
 app.get('/users_password', (req, res) => {
-    const userName = req.query.username;
-    const password = req.query.password;
-    console.log("username in login ", userName);
-    console.log("password in login ", password);
-  
-    connection.query('SELECT * FROM Usernames_and_passwords WHERE Username = ? AND Password = ?', [userName, password], (err, rows) => {
-      if (err) {
-        console.error('Error executing query:', err);
-        res.status(500).send('Error retrieving user information');
-      } else {
-        if (rows.length === 0) {
-          res.status(404).send('User not found');
-        } else {
-          // get the information of the current user
-  
-          // look for the user in customers
-          connection.query('SELECT * FROM Customers WHERE Username = ?', [userName], (err, rows) => {
-            if (err) {
-              console.error('Error executing query:', err);
-              res.status(500).send('Error retrieving user information');
-            } else {
-              if (rows.length === 0) {
-                // look for the user in Employees
-                connection.query('SELECT * FROM Employees WHERE Username = ?', [userName], (err, rows) => {
-                    if (err) {
-                        console.error('Error executing query:', err);
-                        res.status(500).send('Error retrieving user information');
-                    } else {
-                        if (rows.length === 0) {
-                            res.status(404).send('User not found');
-                        } else {
-                            const userInfo = rows[0]; // First row of results
-                            console.log(userInfo);
-                            res.json(userInfo); // Sending user information in JSON format
-                        }
-                    }
-                });
-              } else {
-                const userInfo = rows[0]; // First row of results
-                console.log(userInfo);
-                res.json(userInfo); // Sending user information in JSON format
-              }
-            }
-          });
-        }
-      }
-    });
-  });
+  const userName = req.query.username;
+  const password = req.query.password;
+  console.log("username in login ", userName);
+  console.log("password in login ", password);
 
-  // connection.query('SELECT users.*, users_password.* FROM users INNER JOIN users_password ON users.username = ? AND users_password.password = ?', [  userName, password], (err, rows) => {
-  //   if (err) {
-  //     console.error('Erreur lors de l\'exécution de la requête :', err);
-  //     res.status(500).send('Erreur lors de la récupération des informations de l\'utilisateur');
-  //   } else {
-  //     if (rows.length === 0) {
-  //       res.status(404).send('User not found');
-  //     } else {
-  //       const user = rows[0];
-  //       const userInfo = {
-  //         id: user.id,
-  //         name: user.name,
-  //         username: user.username,
-  //         email: user.email,
-  //         address: user.address,
-  //         phone: user.phone,
-  //         website: user.website,
-  //         company: user.company
-  //       };
-  //       console.log(userInfo);
-  //       res.json(userInfo);
-  //     }
-  //   }
-  // });
+  connection.query('SELECT * FROM Usernames_and_passwords WHERE Username = ? AND Password = ?', [userName, password], (err, rows) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      res.status(500).send('Error retrieving user information');
+    } else {
+      if (rows.length === 0) {
+        res.status(404).send('User not found');
+      } else {
+        // get the information of the current user
+
+        console.log("I am hear!!");
+        // look for the user in customers
+        connection.query('SELECT * FROM Customers WHERE Username = ?', [userName], (err, rows) => {
+          if (err) {
+            console.error('Error executing query:', err);
+            res.status(500).send('Error retrieving user information');
+          } else {
+            if (rows.length === 0) {
+              // look for the user in Employees
+              connection.query('SELECT * FROM Employees WHERE Username = ?', [userName], (err, rows) => {
+                if (err) {
+                  console.error('Error executing query:', err);
+                  res.status(500).send('Error retrieving user information');
+                } else {
+                  if (rows.length === 0) {
+                    res.status(404).send('User not found');
+                  } else {
+                    console.log("224");
+                    const userInfo = rows[0]; // First row of results
+                    console.log(userInfo);
+                    res.json(userInfo); // Sending user information in JSON format
+                  }
+                }
+              });
+            } else {
+              console.log("232");
+              const userInfo = rows[0]; // First row of results
+              console.log(userInfo);
+              res.json(userInfo); // Sending user information in JSON format
+            }
+          }
+        });
+      }
+    }
+  });
+});
+
+// connection.query('SELECT users.*, users_password.* FROM users INNER JOIN users_password ON users.username = ? AND users_password.password = ?', [  userName, password], (err, rows) => {
+//   if (err) {
+//     console.error('Erreur lors de l\'exécution de la requête :', err);
+//     res.status(500).send('Erreur lors de la récupération des informations de l\'utilisateur');
+//   } else {
+//     if (rows.length === 0) {
+//       res.status(404).send('User not found');
+//     } else {
+//       const user = rows[0];
+//       const userInfo = {
+//         id: user.id,
+//         name: user.name,
+//         username: user.username,
+//         email: user.email,
+//         address: user.address,
+//         phone: user.phone,
+//         website: user.website,
+//         company: user.company
+//       };
+//       console.log(userInfo);
+//       res.json(userInfo);
+//     }
+//   }
+// });
 // });
 
 
@@ -437,11 +455,11 @@ app.get('/users_password', (req, res) => {
 //         name: commentToAdd.name,
 //         email:commentToAdd.email,
 //         body: commentToAdd.body
-       
+
 //       };
 
 //       console.log("addedComment ",addedComment);
-      
+
 //       res.status(201).json(addedComment);
 //     }
 //   });
