@@ -76,50 +76,6 @@ export default function Register() {
   };
 
 
-  // const options = {
-  //   hostname: 'localhost',
-  //   port: 3000,
-  //   path: `/users`,
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     'Content-Length': data.length
-  //   }
-  // };
-
-  // const req = https.request(options, (res) => {
-  //   console.log(`Status: ${res.statusCode}`);
-  //   console.log('Response headers:', res.headers);
-
-  //   let resData = '';
-
-  //   res.on('data', (chunk) => {
-  //     resData += chunk;
-  //   });
-
-  //   res.on('end', () => {
-  //     if (res.statusCode === 201) {
-  //       const response = JSON.parse(resData);
-  //       const user = { 'id': response.id, 'username': response.username, 'password': response.password };
-  //       console.log('User:', response);
-  //       alert('Welcome! You was registered successfully.');
-  //       localStorage.setItem('currentUser', JSON.stringify(user));
-  //       navigate(`/users/${user.username}`);
-  //     } else {
-  //       console.error(`Request failed with status code ${res.statusCode}`);
-  //       alert("Sorry, there was an error. Try again")
-  //     }
-
-  //   });
-  // });
-  // req.on('error', (error) => {
-  //   console.error('An error occurred:', error);
-  // });
-  // req.write(data);
-
-  // req.end();
-
-
 
 
 
@@ -134,7 +90,7 @@ export default function Register() {
           name="username"
           value={inputs.username || ""}
           onChange={handleChange}
-          placeholder="Enter your name:"
+          placeholder="Enter your username:"
           required
         />
         <input
@@ -200,7 +156,10 @@ export default function Register() {
           pattern="[0-9]{3}[0-9]{3}[0-9]{4}"
           required
         />
-        <label>Enter your birth date:</label>
+        <label style={{
+          backgroundColor: "white", boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.05)",
+          borderRadius: "6px 6px 0px 0px", color: "gray"
+              }}>Enter your birth date:</label>
         <input
           id="birthDateInput"
           className="inputTypeIn"

@@ -63,11 +63,11 @@ export default function Login() {
         }
       })
       .then(user => {
-        const resUser = JSON.parse(user);
+        // const resUser = JSON.parse(user);
         console.log('User:', user);
         alert('You are logged in');
         localStorage.setItem('currentUser', JSON.stringify(user));
-        navigate(`/booksShop/${resUser.username}`);
+        navigate(`/booksShop/${user.Username}`);
       })
       .catch(error => {
         console.error('An error occurred:', error);
@@ -86,7 +86,7 @@ export default function Login() {
           name="username"
           value={inputs.username || ""}
           onChange={handleChange}
-          placeholder="Enter your name:"
+          placeholder="Enter your username:"
           required
         />
         <input

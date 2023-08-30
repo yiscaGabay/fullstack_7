@@ -5,37 +5,10 @@ import { Link } from "react-router-dom"
 
 export default function Home() {
     return (
-    < >
-        <header className="home-container">
-            <nav>
+        <div className="login-container">
                     <h1 style={{ fontSize: '100px' }}>WELCOME</h1>
-                    <li>  <Link id="loginLink" to='/login'>LOG IN</Link></li>
-                    <li><Link id="registerLink" to='/register'>REGISTER</Link></li> 
-            </nav>
-        </header>
-    </>
+                    <Link className="button-link" to='/login'>LOG IN</Link>
+                    <Link className="button-link" to='/register'>REGISTER</Link>
+        </div>
     )
 };
-
-
-// import React from 'react'
-// import { BrowserRouter, Routes, Route  } from "react-router-dom";
-
-// import Home from "./Home";
-
-
-
-// export default function App() {
-//   return (
-
-//       <BrowserRouter>
-//         <Routes>
-//             <Route path="/" element={<Home/>} />
-
-//         </Routes>
-
-//     </BrowserRouter>
-
-    
-//   );
-// }

@@ -88,9 +88,13 @@ app.post('/:username/customers', (req, res) => {
   });
 });
 
-//show posts
+//show products
 app.get('/products/:type', (req, res) => {
-  const type = req.params.type;
+    const type = req.params.type;
+    const start = parseInt(req.query.start) || 0; // Default to 0 if start is not provided
+    const limit = parseInt(req.query.limit) || 1; // Default to 10 if limit is not provided
+    // console.log(start);
+    // console.log(limit);
 
   connection.query('SELECT * FROM Products WHERE Category = ?', [type], (err, rows) => {
     if (err) {
@@ -100,7 +104,18 @@ app.get('/products/:type', (req, res) => {
       if (rows.length === 0) {
         res.status(404).send('books not found');
       } else {
-        res.json(rows);
+        // Calculate the ending index based on start and limit
+        const end = start + limit;
+
+        // You can implement logic to fetch products based on start and limit
+        const limitedProducts = rows.slice(start, end);
+        if (rows.slice(end, end + limit).length == 0) {
+          limitedProducts.push(true);
+        }
+        else {
+          limitedProducts.push(false);
+        }          
+        res.json(limitedProducts);
       }
     }
     // connection.end();
